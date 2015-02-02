@@ -1,0 +1,83 @@
+#include <cryptopp/files.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/rsa.h>
+#include <cryptopp/sha.h>
+#include <string.h>
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+using namespace CryptoPP;
+
+void keyGeneration()
+{
+	AutoSeededRandomPool rng;
+	InvertibleRSAFunction param
+	params.GenerateRandomWithKeySize(rng, 3072);
+	Integer n=params.GetModulus();
+	Integer p=params.GetPrime1();
+	Integer q=params.GetPrime2();
+	Integer d=params.GetPrivateExponent();
+	Integer e=params.GetPublicExponent();
+	cout << "n =" << n << endl 
+	<< "p= " << p << endl 
+	<< "q= " << q << endl 
+	<< "d= " << d << endl 
+	<< "e= " << e << endl;
+	return 0;
+}
+
+void encryption()
+{
+	AutoSeededRandomPool rng;
+	InvertibleRSAFunction params;
+	params.GenerateRandomWithKeySize(rng, 3072);
+	RSA::PrivateKey private_key(params);
+	RSA::PublicKey public_key(params);
+	string plain="CS 460 Security Algorithm.", cipher, restored;
+	RSAES_OAEP_SHA_Encryptor e(public_key);
+	StringSource ss1(plain, true, new PK_EncryptorFilter(rng, e, new StringSink(cipher)));
+	RSAES_OAEP_SHA_Decryptor d(private_key);
+	StringSource ss2(cipher, true, new PK_DecryptorFilter(rng, d, new StringSink(restored)));
+	cout << "Plain Text: "<<plain<<endl;
+	cout << "Ciphered Text: ";
+	print_string_hex((byte*)cipher.data(),cipher.length());
+	cout << endl;
+	cout << "Decrypted Text: " << restored << endl;
+}
+void print_string_hex(byte* in, int len)
+{
+	for (int i=0; i<len; i++)
+	cout << setfill('0') << setw(2) << hex << (short)in[i];
+}
+
+void signature()
+{
+	AutoSeededRandomPool rng;
+	InvertibleRSAFunction params;
+	params.GenerateRandomWithKeySize(rng, 3072);
+	RSA::PrivateKey private_key(params);
+	RSA::PublicKey public_key(params);
+	string plain="CS 460Security Algorithm.", signature;
+	RSASSA_PKCS1v15_SHA_Signer s(private_key);
+	StringSource ss1(plain, true, new SignerFilter(rng, s, new StringSink(signature)));
+	RSASSA_PKCS1v15_SHA_Verifier v(public_key);
+	try
+	{
+		StringSource ss2(plain+signature, true, 
+		new SignatureVerificationFilter(v, 0, SignatureVerificationFilter::THROW_EXCEPTION));
+	}
+	catch(...) {cout << "Failed Verification." << endl; exit(1);}
+	cout << "Verify successfully." << endl;
+}
+
+int main()
+{
+	int keyLength;
+
+	cout << "Please enter a key length.";
+	cin >> keyLength;
+	cout << "you entered " << keyLength;
+	return 0;
+}
