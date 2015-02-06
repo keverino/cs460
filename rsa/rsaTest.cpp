@@ -140,7 +140,7 @@ void encryption()
 	int trialNumber = 1;
 	double totalTime = 0, elapsedSecs;
 	clock_t begin, end;
-	int counter = 50;
+	int counter = 100;
 
 	cout << "[Plain Text]: " << plaintext << endl << endl;
 
@@ -148,7 +148,7 @@ void encryption()
 	RSA::PublicKey public_key(privkey);
 
 	// encryption
-	cout << "Encrypting 50 times...";
+	cout << "Encrypting 100 times...";
 	while(counter > 0)
 	{
 		cipherText = "";
@@ -169,11 +169,11 @@ void encryption()
 
 	// decryption
 	// reset counters and timer
-	counter = 50;
+	counter = 100;
 	trialNumber = 1;
 	totalTime = 0;
 	elapsedSecs = 0;
-	cout << "Decrypting 50 times...";
+	cout << "Decrypting 100 times...";
 	while(counter > 0)
 	{
 		decryptedText = "";
